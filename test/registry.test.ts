@@ -84,20 +84,20 @@ describe("ProviderRegistry", () => {
   });
 
   it("resolves stream from chosen provider", async () => {
-    const demo = createMockProvider("demo", "DemoStream", [
-      { id: "demo-cdn", name: "Demo CDN" },
+    const mock = createMockProvider("mock", "MockStream", [
+      { id: "mock-cdn", name: "Mock CDN" },
     ]);
-    const registry = new ProviderRegistry({ providers: [demo] });
+    const registry = new ProviderRegistry({ providers: [mock] });
 
     const stream = await registry.resolveStream(
-      "demo",
-      "demo:movie:oppenheimer",
+      "mock",
+      "mock:movie:oppenheimer",
       1,
       1,
-      "Demo CDN",
+      "Mock CDN",
     );
     expect(stream).toBeDefined();
-    expect(stream?.url).toContain("demo.cdn.com");
+    expect(stream?.url).toContain("mock.cdn.com");
     expect(stream?.container).toBe("hls");
   });
 

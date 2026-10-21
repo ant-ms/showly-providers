@@ -6,7 +6,7 @@ import type { AvailableService, StreamSource } from "./types.js";
  * Benchmark & scoring weights:
  * - Resolution: 4K (+16), 1080p (+10), 720p (+5), 480p (+2).
  * - Container: HLS (+8, adaptive bitrate streaming), MP4 (+4).
- * - Provider reliability: NovaHD (+12), Demo (+10), MoviesJoy (+8), Zoechip (+8), HiMovies (+6).
+ * - Provider reliability: NovaHD (+12), MoviesJoy (+8), Zoechip (+8), HiMovies (+6).
  * - Preferred CDN servers: Falcon (+6), MegaCloud (+5), UpCloud (+5), VidFast (+4), VixCloud (+3).
  * - Latency: <100ms (+6), <300ms (+4), <800ms (+2), >2000ms (-4).
  */
@@ -21,7 +21,6 @@ export const SCORE_WEIGHT_MP4 = 4;
 export const SCORE_WEIGHT_PROVIDER_VIDAPI = 14;
 export const SCORE_WEIGHT_PROVIDER_VIXSRC = 13;
 export const SCORE_WEIGHT_PROVIDER_NOVA = 12;
-export const SCORE_WEIGHT_PROVIDER_DEMO = 10;
 export const SCORE_WEIGHT_PROVIDER_MOVIESJOY = 8;
 export const SCORE_WEIGHT_PROVIDER_ZOECHIP = 8;
 export const SCORE_WEIGHT_PROVIDER_HIMOVIES = 6;
@@ -31,7 +30,6 @@ export const DEFAULT_PROVIDER_WEIGHTS: Record<string, number> = {
   vixsrc: SCORE_WEIGHT_PROVIDER_VIXSRC,
   novahd: SCORE_WEIGHT_PROVIDER_NOVA,
   nova: SCORE_WEIGHT_PROVIDER_NOVA,
-  demo: SCORE_WEIGHT_PROVIDER_DEMO,
   moviesjoy: SCORE_WEIGHT_PROVIDER_MOVIESJOY,
   zoechip: SCORE_WEIGHT_PROVIDER_ZOECHIP,
   himovies: SCORE_WEIGHT_PROVIDER_HIMOVIES,

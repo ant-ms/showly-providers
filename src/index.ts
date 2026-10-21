@@ -13,7 +13,6 @@ export { NovaProvider } from "./providers/nova.js";
 export { MoviesJoyProvider } from "./providers/moviesjoy.js";
 export { ZoechipProvider } from "./providers/zoechip.js";
 export { HiMoviesProvider } from "./providers/himovies.js";
-export { DemoProvider, DEMO_STREAMS } from "./providers/demo.js";
 
 // Registry
 export {
@@ -54,7 +53,6 @@ export {
   SCORE_WEIGHT_PROVIDER_VIDAPI,
   SCORE_WEIGHT_PROVIDER_VIXSRC,
   SCORE_WEIGHT_PROVIDER_NOVA,
-  SCORE_WEIGHT_PROVIDER_DEMO,
   SCORE_WEIGHT_PROVIDER_MOVIESJOY,
   SCORE_WEIGHT_PROVIDER_ZOECHIP,
   SCORE_WEIGHT_PROVIDER_HIMOVIES,

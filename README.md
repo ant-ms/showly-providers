@@ -6,7 +6,6 @@ High-reliability Western movies & TV shows streaming provider resolvers, scraper
 
 | Provider       | Base URL                       | Average Latency | Status | CDN / Infrastructure | Direct HLS                |
 | :------------- | :----------------------------- | :-------------- | :----- | :------------------- | :------------------------ |
-| **DemoStream** | `https://test-streams.mux.dev` | ~46ms           | 200 OK | Fastly / Google CDN  | Yes (1080p Master M3U8)   |
 | **NovaHD**     | `https://novahd.cc`            | ~65ms           | 200 OK | Cloudflare           | Yes (Falcon · 1080p M3U8) |
 | **Zoechip**    | `https://zoechip.bz`           | ~71ms           | 200 OK | Cloudflare           | UpCloud / MegaCloud Embed |
 | **HiMovies**   | `https://himovies.ac`          | ~95ms           | 200 OK | Cloudflare           | UpCloud / MegaCloud Embed |
