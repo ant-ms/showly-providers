@@ -1,0 +1,61 @@
+{
+  "name": "@ant.ms/showly-providers",
+  "version": "1.0.0",
+  "description": "High-reliability Western movies & TV shows streaming provider resolvers, scrapers, and stream quality verifiers for Showly",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "prettier --check .",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "movies",
+    "tv-shows",
+    "streaming",
+    "providers",
+    "showly",
+    "scrapers",
+    "hls"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.2.0",
+    "html-entities": "^2.6.0",
+    "lru-cache": "^11.5.3",
+    "m3u8-parser": "^7.2.0"
+  },
+  "devDependencies": {
+    "@types/m3u8-parser": "^7.2.6",
+    "@types/node": "^26.6.5",
+    "@vitest/coverage-v8": "^5.0.5",
+    "prettier": "^3.9.10",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
+  }
+}
