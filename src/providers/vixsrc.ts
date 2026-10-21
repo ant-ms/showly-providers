@@ -71,9 +71,7 @@ export async function resolveVixSrcStream(
     const html = await embedRes.text();
     const token = html.match(/['"]?token['"]?\s*:\s*['"]([^'"]+)['"]/)?.[1];
     const expires = html.match(/['"]?expires['"]?\s*:\s*['"]([^'"]+)['"]/)?.[1];
-    const rawPlaylist = html.match(
-      /['"]?url['"]?\s*:\s*['"]([^'"]+)['"]/,
-    )?.[1];
+    const rawPlaylist = html.match(/['"]?url['"]?\s*:\s*['"]([^'"]+)['"]/)?.[1];
 
     if (!token || !expires || !rawPlaylist) return null;
 
@@ -246,7 +244,8 @@ export class VixSrcProvider extends AbstractProvider {
     season: number = 1,
     _server?: string,
   ): Promise<StreamSource | null> {
-    const isImdb = identifier.startsWith("imdb:") || identifier.startsWith("tt");
+    const isImdb =
+      identifier.startsWith("imdb:") || identifier.startsWith("tt");
     let mediaType: MediaType = "movie";
     let idParam = identifier;
 

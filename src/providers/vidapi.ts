@@ -196,7 +196,8 @@ export class VidApiProvider extends AbstractProvider {
     season: number = 1,
     server?: string,
   ): Promise<StreamSource | null> {
-    const isImdb = identifier.startsWith("imdb:") || identifier.startsWith("tt");
+    const isImdb =
+      identifier.startsWith("imdb:") || identifier.startsWith("tt");
     let mediaType: MediaType = "movie";
     let idParam = identifier;
 
@@ -256,9 +257,7 @@ export class VidApiProvider extends AbstractProvider {
       quality: "1080p",
       resolution: 1080,
       serverName:
-        server === "vidapi-backup"
-          ? "VidApi Backup · 1080p"
-          : "VidApi · 1080p",
+        server === "vidapi-backup" ? "VidApi Backup · 1080p" : "VidApi · 1080p",
       headers: {
         ...getDefaultHeaders(),
       },
