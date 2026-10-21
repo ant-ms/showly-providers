@@ -9,8 +9,10 @@ import { AbstractProvider, type ProviderOptions } from "./base.js";
 import { BoundedCache } from "../utils/cache.js";
 import { getDefaultHeaders } from "../utils/headers.js";
 import { decodeHtmlEntities } from "../utils/html.js";
+import { parseSubtitles } from "../utils/subtitles.js";
 
 interface FlwSourceResponse {
+  type?: string;
   link?: string;
   sources?: Array<{ file: string; type: string }>;
   tracks?: Array<{
@@ -400,10 +402,38 @@ export abstract class FlwBaseProvider extends AbstractProvider {
       },
     );
 
-    if (!sourceData?.link) return null;
+    const directSource = sourceData?.sources?.[0]?.file;
+    if (directSource) {
+      const isHls = directSource.includes(".m3u8");
+      const subtitles = parseSubtitles(sourceData?.tracks);
+      return {
+        url: directSource,
+        container: isHls ? "hls" : "mp4",
+        quality: "1080p",
+        resolution: 1080,
+        serverName: resolvedServerName,
+        headers: {
+          ...getDefaultHeaders(),
+          Referer: `${this.baseUrl}/`,
+        },
+        subtitles,
+      };
+    }
 
-    const link = sourceData.link;
+    const link = sourceData?.link;
+    if (!link) return null;
+
+    // If sourceData is an embed player / iframe (e.g. vidfast.vc, moviesapi.to, vixsrc),
+    // it cannot be played in a native video element. Return null so failover occurs.
+    if (
+      sourceData?.type === "iframe" ||
+      (!link.includes(".m3u8") && !link.includes(".mp4") && !link.includes(".mkv"))
+    ) {
+      return null;
+    }
+
     const isHls = link.includes(".m3u8");
+    const subtitles = parseSubtitles(sourceData?.tracks);
 
     return {
       url: link,
@@ -415,7 +445,7 @@ export abstract class FlwBaseProvider extends AbstractProvider {
         ...getDefaultHeaders(),
         Referer: `${this.baseUrl}/`,
       },
-      subtitles: [],
+      subtitles,
     };
   }
 }

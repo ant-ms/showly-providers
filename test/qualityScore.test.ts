@@ -88,9 +88,35 @@ describe("qualityScore", () => {
         SCORE_WEIGHT_PROVIDER_NOVA + SCORE_WEIGHT_1080P,
       );
     });
+
+    it("safely handles null, undefined and partial service objects without crashing", () => {
+      expect(getServiceScore(null as any)).toBe(0);
+      expect(getServiceScore(undefined as any)).toBe(0);
+      expect(getServiceScore({} as any)).toBe(0);
+      expect(
+        getServiceScore({
+          providerId: "nova",
+          providerName: undefined,
+          serverId: undefined,
+          serverName: undefined,
+        } as any),
+      ).toBe(SCORE_WEIGHT_PROVIDER_NOVA);
+      expect(
+        getServiceScore({
+          providerId: undefined,
+          providerName: "NovaHD",
+          serverId: "falcon",
+        } as any),
+      ).toBeGreaterThan(0);
+    });
   });
 
   describe("getStreamScore", () => {
+    it("safely handles null and partial streams", () => {
+      expect(getStreamScore(null as any)).toBe(0);
+      expect(getStreamScore({} as any)).toBe(0);
+    });
+
     it("calculates comprehensive stream score with bonus, resolution, container and latency", () => {
       const stream: StreamSource = {
         url: "https://nova.cc/master.m3u8",

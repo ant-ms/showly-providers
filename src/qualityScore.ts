@@ -122,11 +122,12 @@ export function getServiceScore(
   service: AvailableService,
   options?: QualityScoreOptions,
 ): number {
+  if (!service) return 0;
   let score = service.scoreBonus ?? 0;
 
   const providerWeights = options?.providerWeights ?? DEFAULT_PROVIDER_WEIGHTS;
-  const pId = service.providerId.toLowerCase();
-  const pName = service.providerName.toLowerCase();
+  const pId = (service.providerId || "").toLowerCase();
+  const pName = (service.providerName || service.providerId || "").toLowerCase();
   score += providerWeights[pId] ?? providerWeights[pName] ?? 0;
 
   const serverName = (service.serverName || "").toLowerCase();
@@ -155,6 +156,7 @@ export function getStreamScore(
   latencyMs?: number,
   providerBonus: number = 0,
 ): number {
+  if (!stream) return 0;
   let score = providerBonus;
 
   // Resolution score

@@ -98,4 +98,20 @@ segment_0.ts`;
 
     expect(isHealthy).toBe(false);
   });
+
+  it("returns false when stream URL returns an HTML page instead of video (e.g. embed player)", async () => {
+    const mockFetch: typeof fetch = async () => {
+      return new Response("<!DOCTYPE html><html><body><video></video></body></html>", {
+        status: 200,
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
+    };
+
+    const isHealthy = await probeStreamHealth(
+      { url: "https://vidfast.vc/tv/284833/1/3", container: "mp4" },
+      { fetchFn: mockFetch, timeoutMs: 1000 },
+    );
+
+    expect(isHealthy).toBe(false);
+  });
 });

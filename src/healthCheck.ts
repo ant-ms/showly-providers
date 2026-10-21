@@ -56,6 +56,14 @@ export async function probeStreamHealth(
     }
 
     const contentType = (res.headers.get("content-type") || "").toLowerCase();
+    if (contentType.includes("text/html")) {
+      log.debug(
+        { contentType, url: streamSource.url },
+        "Stream probe returned HTML page instead of playable media",
+      );
+      return false;
+    }
+
     const isM3U8 =
       streamSource.container === "hls" ||
       contentType.includes("mpegurl") ||
@@ -114,6 +122,8 @@ export async function probeStreamHealth(
       });
 
       if (!probeRes.ok && probeRes.status !== 206) return false;
+      const probeContentType = (probeRes.headers.get("content-type") || "").toLowerCase();
+      if (probeContentType.includes("text/html")) return false;
       const buf = await probeRes.arrayBuffer();
       return buf.byteLength > 0;
     }
