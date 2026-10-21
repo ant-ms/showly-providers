@@ -10,6 +10,7 @@ import { BoundedCache } from "../utils/cache.js";
 import { getDefaultHeaders } from "../utils/headers.js";
 import { decodeHtmlEntities } from "../utils/html.js";
 import { parseSubtitles } from "../utils/subtitles.js";
+import { resolveVixSrcStream } from "./vixsrc.js";
 
 interface FlwSourceResponse {
   type?: string;
@@ -422,6 +423,20 @@ export abstract class FlwBaseProvider extends AbstractProvider {
 
     const link = sourceData?.link;
     if (!link) return null;
+
+    if (link.includes("vixsrc.to")) {
+      const vixStream = await resolveVixSrcStream(
+        link,
+        this.fetchFn,
+        this.timeoutMs,
+      );
+      if (vixStream) {
+        return {
+          ...vixStream,
+          serverName: resolvedServerName,
+        };
+      }
+    }
 
     // If sourceData is an embed player / iframe (e.g. vidfast.vc, moviesapi.to, vixsrc),
     // it cannot be played in a native video element. Return null so failover occurs.

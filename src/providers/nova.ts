@@ -199,6 +199,28 @@ export class NovaProvider extends AbstractProvider {
       if (match) selected = match;
     }
 
+    // Reject NovaHD troll / unavailable video streams that loop s.ts
+    if (selected.url.includes("novahd.cc/api/hls")) {
+      try {
+        const probeRes = await this.fetchFn(selected.url, {
+          headers: {
+            ...getDefaultHeaders(),
+            Referer: `${BASE_URL}/`,
+            Origin: BASE_URL,
+          },
+          signal: AbortSignal.timeout(3000),
+        });
+        if (probeRes.ok) {
+          const text = await probeRes.text();
+          if (text.includes("s.ts") || text.includes("Video unavailable")) {
+            return null;
+          }
+        }
+      } catch {
+        // Continue if probe cannot be completed
+      }
+    }
+
     const container: "hls" | "mp4" =
       selected.type === "hls" || selected.url.includes(".m3u8") ? "hls" : "mp4";
 

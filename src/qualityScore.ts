@@ -18,6 +18,8 @@ export const SCORE_WEIGHT_480P = 2;
 export const SCORE_WEIGHT_HLS = 8;
 export const SCORE_WEIGHT_MP4 = 4;
 
+export const SCORE_WEIGHT_PROVIDER_VIDAPI = 14;
+export const SCORE_WEIGHT_PROVIDER_VIXSRC = 13;
 export const SCORE_WEIGHT_PROVIDER_NOVA = 12;
 export const SCORE_WEIGHT_PROVIDER_DEMO = 10;
 export const SCORE_WEIGHT_PROVIDER_MOVIESJOY = 8;
@@ -25,6 +27,8 @@ export const SCORE_WEIGHT_PROVIDER_ZOECHIP = 8;
 export const SCORE_WEIGHT_PROVIDER_HIMOVIES = 6;
 
 export const DEFAULT_PROVIDER_WEIGHTS: Record<string, number> = {
+  vidapi: SCORE_WEIGHT_PROVIDER_VIDAPI,
+  vixsrc: SCORE_WEIGHT_PROVIDER_VIXSRC,
   novahd: SCORE_WEIGHT_PROVIDER_NOVA,
   nova: SCORE_WEIGHT_PROVIDER_NOVA,
   demo: SCORE_WEIGHT_PROVIDER_DEMO,
@@ -39,6 +43,10 @@ export interface ServerScoringRule {
 }
 
 export const DEFAULT_SERVER_RULES: ServerScoringRule[] = [
+  {
+    match: (name, id) => name.includes("vidapi") || id.includes("vidapi"),
+    weight: 7,
+  },
   {
     match: (name, id) => name.includes("falcon") || id === "falcon",
     weight: 6,

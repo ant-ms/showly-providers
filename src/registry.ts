@@ -8,10 +8,11 @@ import type {
   TitleMatcherOptions,
 } from "./types.js";
 import { getServiceScore, type QualityScoreOptions } from "./qualityScore.js";
-import { DemoProvider } from "./providers/demo.js";
 import { HiMoviesProvider } from "./providers/himovies.js";
 import { MoviesJoyProvider } from "./providers/moviesjoy.js";
 import { NovaProvider } from "./providers/nova.js";
+import { VidApiProvider } from "./providers/vidapi.js";
+import { VixSrcProvider } from "./providers/vixsrc.js";
 import { ZoechipProvider } from "./providers/zoechip.js";
 import { matchBestSearchResult } from "./titleMatcher.js";
 import { getLogger } from "./utils/logger.js";
@@ -26,6 +27,8 @@ export interface CheckAvailabilityOptions {
   qualityScoreOptions?: QualityScoreOptions;
   mediaType?: MediaType;
   timeoutMs?: number;
+  tmdbId?: number;
+  imdbId?: string;
 }
 
 export class ProviderRegistry {
@@ -41,11 +44,12 @@ export class ProviderRegistry {
       }
     } else {
       // Default high-reliability western providers in benchmarked priority order
+      this.register(new VidApiProvider());
+      this.register(new VixSrcProvider());
       this.register(new NovaProvider());
       this.register(new MoviesJoyProvider());
       this.register(new ZoechipProvider());
       this.register(new HiMoviesProvider());
-      this.register(new DemoProvider());
     }
   }
 
@@ -103,10 +107,18 @@ export class ProviderRegistry {
       providers.map(async (provider) => {
         try {
           const providerCheck = async () => {
+            const titlesToQuery = [...validTitles];
+            if (options?.tmdbId) {
+              titlesToQuery.push(`${mediaType}:${options.tmdbId}`);
+            }
+            if (options?.imdbId) {
+              titlesToQuery.push(`imdb:${options.imdbId}`);
+            }
+
             const searches = await Promise.all(
-              validTitles.map((title) =>
+              titlesToQuery.map((query) =>
                 provider
-                  .search(title, mediaType)
+                  .search(query, mediaType)
                   .catch(() => [] as ProviderSearchResult[]),
               ),
             );
@@ -124,11 +136,31 @@ export class ProviderRegistry {
             const allCandidates = Array.from(candidateMap.values());
             if (allCandidates.length === 0) return;
 
-            const match = await this.titleMatcher(
-              validTitles,
-              allCandidates,
-              matcherOptions,
-            );
+            let match =
+              (options?.tmdbId
+                ? allCandidates.find(
+                    (c) =>
+                      c.identifier === `${mediaType}:${options.tmdbId}` ||
+                      c.identifier.endsWith(`:${options.tmdbId}`),
+                  )
+                : undefined) ?? null;
+
+            if (!match && options?.imdbId) {
+              match =
+                allCandidates.find(
+                  (c) =>
+                    c.identifier === `imdb:${options.imdbId}` ||
+                    c.identifier.includes(options.imdbId!),
+                ) ?? null;
+            }
+
+            if (!match) {
+              match = await this.titleMatcher(
+                validTitles,
+                allCandidates,
+                matcherOptions,
+              );
+            }
             if (!match) return;
 
             const matchedIdentifier = match.identifier;
