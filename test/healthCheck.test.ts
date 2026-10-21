@@ -101,10 +101,13 @@ segment_0.ts`;
 
   it("returns false when stream URL returns an HTML page instead of video (e.g. embed player)", async () => {
     const mockFetch: typeof fetch = async () => {
-      return new Response("<!DOCTYPE html><html><body><video></video></body></html>", {
-        status: 200,
-        headers: { "content-type": "text/html; charset=utf-8" },
-      });
+      return new Response(
+        "<!DOCTYPE html><html><body><video></video></body></html>",
+        {
+          status: 200,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        },
+      );
     };
 
     const isHealthy = await probeStreamHealth(

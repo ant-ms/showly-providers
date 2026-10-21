@@ -122,7 +122,9 @@ export async function probeStreamHealth(
       });
 
       if (!probeRes.ok && probeRes.status !== 206) return false;
-      const probeContentType = (probeRes.headers.get("content-type") || "").toLowerCase();
+      const probeContentType = (
+        probeRes.headers.get("content-type") || ""
+      ).toLowerCase();
       if (probeContentType.includes("text/html")) return false;
       const buf = await probeRes.arrayBuffer();
       return buf.byteLength > 0;

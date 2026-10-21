@@ -427,7 +427,9 @@ export abstract class FlwBaseProvider extends AbstractProvider {
     // it cannot be played in a native video element. Return null so failover occurs.
     if (
       sourceData?.type === "iframe" ||
-      (!link.includes(".m3u8") && !link.includes(".mp4") && !link.includes(".mkv"))
+      (!link.includes(".m3u8") &&
+        !link.includes(".mp4") &&
+        !link.includes(".mkv"))
     ) {
       return null;
     }

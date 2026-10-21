@@ -127,7 +127,11 @@ export function getServiceScore(
 
   const providerWeights = options?.providerWeights ?? DEFAULT_PROVIDER_WEIGHTS;
   const pId = (service.providerId || "").toLowerCase();
-  const pName = (service.providerName || service.providerId || "").toLowerCase();
+  const pName = (
+    service.providerName ||
+    service.providerId ||
+    ""
+  ).toLowerCase();
   score += providerWeights[pId] ?? providerWeights[pName] ?? 0;
 
   const serverName = (service.serverName || "").toLowerCase();

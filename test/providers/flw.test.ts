@@ -118,7 +118,9 @@ describe("FLW CMS Providers (MoviesJoy, Zoechip, HiMovies)", () => {
       "MegaCloud",
     );
     expect(stream).toBeDefined();
-    expect(stream?.url).toBe("https://stream.vidfast.vc/hls/movie/872585/master.m3u8");
+    expect(stream?.url).toBe(
+      "https://stream.vidfast.vc/hls/movie/872585/master.m3u8",
+    );
     expect(stream?.serverName).toBe("MegaCloud");
   });
 
@@ -138,7 +140,9 @@ describe("FLW CMS Providers (MoviesJoy, Zoechip, HiMovies)", () => {
 
     const stream = await provider.getStream("tv/breaking-bad-Mw5SAl3nLb", 1, 1);
     expect(stream).toBeDefined();
-    expect(stream?.url).toBe("https://stream.vidfast.vc/hls/movie/872585/master.m3u8");
+    expect(stream?.url).toBe(
+      "https://stream.vidfast.vc/hls/movie/872585/master.m3u8",
+    );
 
     // Verify unplayable iframe returns null
     const iframeFetch: typeof fetch = async (input) => {
@@ -148,14 +152,21 @@ describe("FLW CMS Providers (MoviesJoy, Zoechip, HiMovies)", () => {
       }
       if (url.includes("/ajax/episode/sources/")) {
         return new Response(
-          JSON.stringify({ type: "iframe", link: "https://vidfast.vc/movie/872585" }),
+          JSON.stringify({
+            type: "iframe",
+            link: "https://vidfast.vc/movie/872585",
+          }),
           { status: 200, headers: { "content-type": "application/json" } },
         );
       }
       return new Response("Not found", { status: 404 });
     };
     const iframeProvider = new HiMoviesProvider({ fetchFn: iframeFetch });
-    const unplayableStream = await iframeProvider.getStream("tv/breaking-bad-Mw5SAl3nLb", 1, 1);
+    const unplayableStream = await iframeProvider.getStream(
+      "tv/breaking-bad-Mw5SAl3nLb",
+      1,
+      1,
+    );
     expect(unplayableStream).toBeNull();
   });
 });
