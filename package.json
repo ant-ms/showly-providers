@@ -6,6 +6,15 @@
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ant-ms/showly-providers.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ant-ms/showly-providers/issues"
+  },
+  "homepage": "https://github.com/ant-ms/showly-providers#readme",
+  "author": "Yanik Ammann <yanik@ant.ms>",
   "files": [
     "dist",
     "LICENSE",
@@ -31,7 +40,8 @@
     "check": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "lint": "prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "movies",
