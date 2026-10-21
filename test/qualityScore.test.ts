@@ -29,7 +29,9 @@ describe("qualityScore", () => {
       expect(getResolutionScore(2160)).toBe(SCORE_WEIGHT_4K);
       expect(getResolutionScore(1080)).toBe(SCORE_WEIGHT_1080P);
       expect(getResolutionScore(720)).toBe(SCORE_WEIGHT_720P);
-      expect(getResolutionScore("1080p")).toBeGreaterThan(getResolutionScore("720p"));
+      expect(getResolutionScore("1080p")).toBeGreaterThan(
+        getResolutionScore("720p"),
+      );
     });
   });
 
@@ -41,7 +43,9 @@ describe("qualityScore", () => {
       expect(getContainerScore("mp4", "https://site.com/video.mp4")).toBe(
         SCORE_WEIGHT_MP4,
       );
-      expect(getContainerScore("hls")).toBeGreaterThan(getContainerScore("mp4"));
+      expect(getContainerScore("hls")).toBeGreaterThan(
+        getContainerScore("mp4"),
+      );
     });
   });
 

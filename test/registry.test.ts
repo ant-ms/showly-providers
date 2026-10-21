@@ -16,7 +16,10 @@ describe("ProviderRegistry", () => {
   ): BaseProvider => ({
     id,
     name,
-    search: async (query: string, mediaType?: MediaType): Promise<ProviderSearchResult[]> => [
+    search: async (
+      query: string,
+      mediaType?: MediaType,
+    ): Promise<ProviderSearchResult[]> => [
       {
         identifier: `${id}:${query}`,
         name: query,

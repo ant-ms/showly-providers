@@ -26,5 +26,7 @@ export function extractAttribute(html: string, attr: string): string | null {
  */
 export function stripHtml(html: string): string {
   if (!html) return "";
-  return decodeHtmlEntities(html.replace(/<[^>]*>/g, " ")).replace(/\s+/g, " ").trim();
+  return decodeHtmlEntities(html.replace(/<[^>]*>/g, " "))
+    .replace(/\s+/g, " ")
+    .trim();
 }

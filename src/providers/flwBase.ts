@@ -13,7 +13,12 @@ import { decodeHtmlEntities } from "../utils/html.js";
 interface FlwSourceResponse {
   link?: string;
   sources?: Array<{ file: string; type: string }>;
-  tracks?: Array<{ file: string; label: string; kind: string; default?: boolean }>;
+  tracks?: Array<{
+    file: string;
+    label: string;
+    kind: string;
+    default?: boolean;
+  }>;
 }
 
 export abstract class FlwBaseProvider extends AbstractProvider {
@@ -34,10 +39,14 @@ export abstract class FlwBaseProvider extends AbstractProvider {
   }
 
   protected extractSlugId(identifier: string): string {
-    const clean = identifier.replace(/^https?:\/\/[^/]+\//, "").replace(/^\//, "");
+    const clean = identifier
+      .replace(/^https?:\/\/[^/]+\//, "")
+      .replace(/^\//, "");
     const parts = clean.split("-");
     const lastPart = parts[parts.length - 1];
-    return lastPart.includes("/") ? lastPart.split("/").pop() || lastPart : lastPart;
+    return lastPart.includes("/")
+      ? lastPart.split("/").pop() || lastPart
+      : lastPart;
   }
 
   async search(
@@ -194,7 +203,8 @@ export abstract class FlwBaseProvider extends AbstractProvider {
           const $srv = cheerio.load(serversHtml);
           $srv(".link-item").each((_, el) => {
             const id = $srv(el).attr("data-id") || "";
-            const name = $srv(el).text().trim() || $srv(el).attr("title") || "Server";
+            const name =
+              $srv(el).text().trim() || $srv(el).attr("title") || "Server";
             if (id) servers.push({ id, name });
           });
         }

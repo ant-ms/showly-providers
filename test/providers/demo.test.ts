@@ -23,7 +23,12 @@ describe("DemoProvider", () => {
   });
 
   it("returns 100% reliable 1080p HLS stream", async () => {
-    const stream = await provider.getStream("demo:movie:test", 1, 1, "demo-cdn");
+    const stream = await provider.getStream(
+      "demo:movie:test",
+      1,
+      1,
+      "demo-cdn",
+    );
     expect(stream).toBeDefined();
     expect(stream?.url).toBe(DEMO_STREAMS.bigBuckBunny);
     expect(stream?.container).toBe("hls");
@@ -33,7 +38,12 @@ describe("DemoProvider", () => {
   });
 
   it("supports backup demo HLS stream", async () => {
-    const stream = await provider.getStream("demo:movie:test", 1, 1, "demo-backup");
+    const stream = await provider.getStream(
+      "demo:movie:test",
+      1,
+      1,
+      "demo-backup",
+    );
     expect(stream).toBeDefined();
     expect(stream?.url).toBe(DEMO_STREAMS.sintel);
   });

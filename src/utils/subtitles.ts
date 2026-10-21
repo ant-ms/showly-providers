@@ -41,13 +41,16 @@ export function normalizeLanguageCode(labelOrLang: string): string {
 
   // Handle common 2 or 3 letter ISO codes (e.g. "spa" -> "es", "fre" / "fra" -> "fr", "ger" / "deu" -> "de")
   if (lower.startsWith("es-") || lower === "spa") return "es";
-  if (lower.startsWith("fr-") || lower === "fra" || lower === "fre") return "fr";
-  if (lower.startsWith("de-") || lower === "deu" || lower === "ger") return "de";
+  if (lower.startsWith("fr-") || lower === "fra" || lower === "fre")
+    return "fr";
+  if (lower.startsWith("de-") || lower === "deu" || lower === "ger")
+    return "de";
   if (lower.startsWith("it-") || lower === "ita") return "it";
   if (lower.startsWith("pt-") || lower === "por") return "pt";
   if (lower.startsWith("ru-") || lower === "rus") return "ru";
   if (lower.startsWith("ar-") || lower === "ara") return "ar";
-  if (lower.startsWith("zh-") || lower === "zho" || lower === "chi") return "zh";
+  if (lower.startsWith("zh-") || lower === "zho" || lower === "chi")
+    return "zh";
   if (lower.startsWith("ja-") || lower === "jpn") return "ja";
 
   return lower || "en";
@@ -94,14 +97,17 @@ export function parseSubtitles(rawSubs?: RawSubtitle[]): SubtitleTrack[] {
       isDefault = sub.default === true;
     } else {
       // Default to the first English track if no subtitle is explicitly marked default
-      const isEnglish = language === "en" || rawLabel.toLowerCase().includes("english");
+      const isEnglish =
+        language === "en" || rawLabel.toLowerCase().includes("english");
       const firstEnIndex = filtered.findIndex((s) => {
         const sLabelLang = s.label ? normalizeLanguageCode(s.label) : null;
         const sIsNonEn = Boolean(sLabelLang && sLabelLang !== "en");
         const sLang = sIsNonEn
           ? sLabelLang!
           : normalizeLanguageCode(s.lang || s.language || s.label || "en");
-        return sLang === "en" || (s.label || "").toLowerCase().includes("english");
+        return (
+          sLang === "en" || (s.label || "").toLowerCase().includes("english")
+        );
       });
       isDefault = isEnglish && idx === (firstEnIndex >= 0 ? firstEnIndex : 0);
     }

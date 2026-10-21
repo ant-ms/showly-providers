@@ -45,22 +45,21 @@ export const DEFAULT_SERVER_RULES: ServerScoringRule[] = [
   },
   {
     match: (name, id) =>
-      name.includes("megacloud") || name.includes("mega") || id.includes("mega"),
+      name.includes("megacloud") ||
+      name.includes("mega") ||
+      id.includes("mega"),
     weight: 5,
   },
   {
-    match: (name, id) =>
-      name.includes("upcloud") || id.includes("upcloud"),
+    match: (name, id) => name.includes("upcloud") || id.includes("upcloud"),
     weight: 5,
   },
   {
-    match: (name, id) =>
-      name.includes("vidfast") || id.includes("vidfast"),
+    match: (name, id) => name.includes("vidfast") || id.includes("vidfast"),
     weight: 4,
   },
   {
-    match: (name, id) =>
-      name.includes("vixcloud") || id.includes("vixsrc"),
+    match: (name, id) => name.includes("vixcloud") || id.includes("vixsrc"),
     weight: 3,
   },
 ];
@@ -95,7 +94,10 @@ export function getResolutionScore(resOrQuality?: number | string): number {
   return 0;
 }
 
-export function getContainerScore(container?: "hls" | "mp4" | string, url?: string): number {
+export function getContainerScore(
+  container?: "hls" | "mp4" | string,
+  url?: string,
+): number {
   const c = (container || "").toLowerCase();
   const u = (url || "").toLowerCase();
 

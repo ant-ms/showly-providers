@@ -57,7 +57,10 @@ describe("NovaProvider", () => {
               {
                 seasonNumber: 1,
                 episodeCount: 7,
-                episodes: [{ episodeNumber: 1, title: "Pilot" }, { episodeNumber: 2, title: "Cats in the Bag" }],
+                episodes: [
+                  { episodeNumber: 1, title: "Pilot" },
+                  { episodeNumber: 2, title: "Cats in the Bag" },
+                ],
               },
             ],
           }),

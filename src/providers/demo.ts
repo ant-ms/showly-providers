@@ -9,8 +9,7 @@ import { DEFAULT_USER_AGENT } from "../utils/headers.js";
 
 export const DEMO_STREAMS = {
   bigBuckBunny: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-  sintel:
-    "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
+  sintel: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
   tearsOfSteel:
     "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
 };

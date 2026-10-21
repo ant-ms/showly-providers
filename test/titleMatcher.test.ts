@@ -27,7 +27,9 @@ describe("titleMatcher", () => {
       expect(levenshteinDistance("oppenheimer", "oppenheimer")).toBe(0);
       expect(levenshteinSimilarity("oppenheimer", "oppenheimer")).toBe(1.0);
       expect(levenshteinDistance("breaking", "braking")).toBe(1);
-      expect(levenshteinSimilarity("interstellar", "interstelar")).toBeGreaterThan(0.9);
+      expect(
+        levenshteinSimilarity("interstellar", "interstelar"),
+      ).toBeGreaterThan(0.9);
     });
 
     it("computes token similarity", () => {

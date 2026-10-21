@@ -1,6 +1,6 @@
 {
   "name": "@ant.ms/showly-providers",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "High-reliability Western movies & TV shows streaming provider resolvers, scrapers, and stream quality verifiers for Showly",
   "type": "module",
   "main": "dist/index.cjs",

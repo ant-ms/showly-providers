@@ -73,11 +73,7 @@ export {
   extractAttribute,
   stripHtml,
 } from "./utils/html.js";
-export {
-  getLogger,
-  setLogger,
-  nullLogger,
-} from "./utils/logger.js";
+export { getLogger, setLogger, nullLogger } from "./utils/logger.js";
 export {
   normalizeLanguageCode,
   parseSubtitles,
