@@ -9,7 +9,6 @@ export {
 export { FlwBaseProvider } from "./providers/flwBase.js";
 export { VidApiProvider } from "./providers/vidapi.js";
 export { VixSrcProvider, resolveVixSrcStream } from "./providers/vixsrc.js";
-export { NovaProvider } from "./providers/nova.js";
 export { MoviesJoyProvider } from "./providers/moviesjoy.js";
 export { ZoechipProvider } from "./providers/zoechip.js";
 export { HiMoviesProvider } from "./providers/himovies.js";
@@ -52,7 +51,6 @@ export {
   SCORE_WEIGHT_MP4,
   SCORE_WEIGHT_PROVIDER_VIDAPI,
   SCORE_WEIGHT_PROVIDER_VIXSRC,
-  SCORE_WEIGHT_PROVIDER_NOVA,
   SCORE_WEIGHT_PROVIDER_MOVIESJOY,
   SCORE_WEIGHT_PROVIDER_ZOECHIP,
   SCORE_WEIGHT_PROVIDER_HIMOVIES,

@@ -115,4 +115,13 @@ describe("VixSrcProvider", () => {
       "https://vixsrc.to/playlist/793535?token=abc_token&expires=1800000000&h=1",
     );
   });
+
+  it("returns empty episodes list when requested episode returns 404", async () => {
+    const mockFetch: typeof fetch = async () =>
+      new Response("Not found", { status: 404 });
+    const provider = new VixSrcProvider({ fetchFn: mockFetch });
+    const epData = await provider.getEpisodes("tv:2190", 29, 4);
+    expect(epData.episodes).toEqual([]);
+    expect(epData.servers).toEqual([]);
+  });
 });

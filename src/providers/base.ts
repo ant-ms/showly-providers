@@ -43,6 +43,7 @@ export abstract class AbstractProvider implements BaseProvider {
   getEpisodes?(
     identifier: string,
     season?: number,
+    episode?: number,
   ): Promise<ProviderEpisodeList>;
 
   protected sanitizeQuery(query: string): string {

@@ -104,6 +104,11 @@ export class VixSrcProvider extends AbstractProvider {
     ttlMs: 15 * 60 * 1000,
   });
 
+  private streamCache = new BoundedCache<string, StreamSource>({
+    maxSize: 300,
+    ttlMs: 5 * 60 * 1000,
+  });
+
   constructor(options?: ProviderOptions) {
     super(options);
   }
@@ -228,9 +233,26 @@ export class VixSrcProvider extends AbstractProvider {
   }
 
   async getEpisodes(
-    _identifier: string,
-    _season: number = 1,
+    identifier: string,
+    season: number = 1,
+    episode?: number,
   ): Promise<ProviderEpisodeList> {
+    if (episode !== undefined) {
+      const stream = await this.getStream(identifier, episode, season);
+      if (!stream) {
+        return { episodes: [], seasons: [], servers: [] };
+      }
+
+      return {
+        episodes: Array.from(
+          { length: Math.max(100, episode) },
+          (_, i) => i + 1,
+        ),
+        seasons: Array.from({ length: Math.max(30, season) }, (_, i) => i + 1),
+        servers: [{ id: "vixcloud", name: "VixCloud · 1080p" }],
+      };
+    }
+
     return {
       episodes: Array.from({ length: 100 }, (_, i) => i + 1),
       seasons: Array.from({ length: 30 }, (_, i) => i + 1),
@@ -244,6 +266,10 @@ export class VixSrcProvider extends AbstractProvider {
     season: number = 1,
     _server?: string,
   ): Promise<StreamSource | null> {
+    const cacheKey = `${identifier}:s${season}:e${episode}`;
+    const cached = this.streamCache.get(cacheKey);
+    if (cached) return cached;
+
     const isImdb =
       identifier.startsWith("imdb:") || identifier.startsWith("tt");
     let mediaType: MediaType = "movie";
@@ -264,6 +290,14 @@ export class VixSrcProvider extends AbstractProvider {
       ? `/api/tv/${encodeURIComponent(idParam)}/${season}/${episode}`
       : `/api/movie/${encodeURIComponent(idParam)}`;
 
-    return await resolveVixSrcStream(apiPath, this.fetchFn, this.timeoutMs);
+    const stream = await resolveVixSrcStream(
+      apiPath,
+      this.fetchFn,
+      this.timeoutMs,
+    );
+    if (stream) {
+      this.streamCache.set(cacheKey, stream);
+    }
+    return stream;
   }
 }

@@ -4,12 +4,13 @@ High-reliability Western movies & TV shows streaming provider resolvers, scraper
 
 ## Providers Benchmark & Status
 
-| Provider       | Base URL                       | Average Latency | Status | CDN / Infrastructure | Direct HLS                |
-| :------------- | :----------------------------- | :-------------- | :----- | :------------------- | :------------------------ |
-| **NovaHD**     | `https://novahd.cc`            | ~65ms           | 200 OK | Cloudflare           | Yes (Falcon · 1080p M3U8) |
-| **Zoechip**    | `https://zoechip.bz`           | ~71ms           | 200 OK | Cloudflare           | UpCloud / MegaCloud Embed |
-| **HiMovies**   | `https://himovies.ac`          | ~95ms           | 200 OK | Cloudflare           | UpCloud / MegaCloud Embed |
-| **MoviesJoy**  | `https://moviesjoy.bz`         | ~100ms          | 200 OK | Cloudflare           | UpCloud / MegaCloud Embed |
+| Provider      | Base URL                         | Average Latency | Status | CDN / Infrastructure | Direct HLS            |
+| :------------ | :------------------------------- | :-------------- | :----- | :------------------- | :-------------------- |
+| **VidApi**    | `https://streamdata.vaplayer.ru` | ~60ms           | 200 OK | Cloudflare           | Yes (1080p M3U8)      |
+| **VixSrc**    | `https://vixsrc.to`              | ~180ms          | 200 OK | VixCloud             | Yes (1080p M3U8)      |
+| **Zoechip**   | `https://zoechip.bz`             | ~71ms           | 200 OK | Cloudflare           | VixCloud / Direct HLS |
+| **HiMovies**  | `https://himovies.ac`            | ~95ms           | 200 OK | Cloudflare           | VixCloud / Direct HLS |
+| **MoviesJoy** | `https://moviesjoy.bz`           | ~100ms          | 200 OK | Cloudflare           | VixCloud / Direct HLS |
 
 ## Installation
 
@@ -26,7 +27,7 @@ import { registry, probeStreamHealth } from "@ant.ms/showly-providers";
 const services = await registry.checkAvailability("Oppenheimer", 2023);
 
 console.log(`Found ${services.length} available service candidates:`);
-console.log(services[0]); // Best-scoring server (e.g. NovaHD Falcon 1080p)
+console.log(services[0]); // Best-scoring server (e.g. VidApi 1080p)
 
 // 2. Resolve stream URL
 const stream = await registry.resolveStream(

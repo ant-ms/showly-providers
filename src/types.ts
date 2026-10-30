@@ -59,6 +59,7 @@ export interface BaseProvider {
   getEpisodes?(
     identifier: string,
     season?: number,
+    episode?: number,
   ): Promise<ProviderEpisodeList>;
 }
 

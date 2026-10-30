@@ -50,6 +50,11 @@ export class VidApiProvider extends AbstractProvider {
     ttlMs: 15 * 60 * 1000,
   });
 
+  private responseCache = new BoundedCache<string, VidApiResponse>({
+    maxSize: 300,
+    ttlMs: 5 * 60 * 1000,
+  });
+
   constructor(options?: ProviderOptions) {
     super(options);
   }
@@ -176,26 +181,15 @@ export class VidApiProvider extends AbstractProvider {
     return results;
   }
 
-  async getEpisodes(
-    _identifier: string,
-    _season: number = 1,
-  ): Promise<ProviderEpisodeList> {
-    return {
-      episodes: Array.from({ length: 100 }, (_, i) => i + 1),
-      seasons: Array.from({ length: 30 }, (_, i) => i + 1),
-      servers: [
-        { id: "vidapi-primary", name: "VidApi · 1080p" },
-        { id: "vidapi-backup", name: "VidApi Backup · 1080p" },
-      ],
-    };
-  }
-
-  async getStream(
+  private async fetchApiData(
     identifier: string,
-    episode: number = 1,
     season: number = 1,
-    server?: string,
-  ): Promise<StreamSource | null> {
+    episode: number = 1,
+  ): Promise<VidApiResponse | null> {
+    const cacheKey = `${identifier}:s${season}:e${episode}`;
+    const cached = this.responseCache.get(cacheKey);
+    if (cached) return cached;
+
     const isImdb =
       identifier.startsWith("imdb:") || identifier.startsWith("tt");
     let mediaType: MediaType = "movie";
@@ -231,8 +225,59 @@ export class VidApiProvider extends AbstractProvider {
       },
     });
 
+    if (data) {
+      this.responseCache.set(cacheKey, data);
+    }
+    return data;
+  }
+
+  async getEpisodes(
+    identifier: string,
+    season: number = 1,
+    episode?: number,
+  ): Promise<ProviderEpisodeList> {
+    if (episode !== undefined) {
+      const data = await this.fetchApiData(identifier, season, episode);
+      const urls = data?.data?.stream_urls;
+      if (String(data?.status_code) !== "200" || !urls || urls.length === 0) {
+        return { episodes: [], seasons: [], servers: [] };
+      }
+
+      const servers = [{ id: "vidapi-primary", name: "VidApi · 1080p" }];
+      if (urls.length > 1) {
+        servers.push({ id: "vidapi-backup", name: "VidApi Backup · 1080p" });
+      }
+
+      return {
+        episodes: Array.from(
+          { length: Math.max(100, episode) },
+          (_, i) => i + 1,
+        ),
+        seasons: Array.from({ length: Math.max(30, season) }, (_, i) => i + 1),
+        servers,
+      };
+    }
+
+    return {
+      episodes: Array.from({ length: 100 }, (_, i) => i + 1),
+      seasons: Array.from({ length: 30 }, (_, i) => i + 1),
+      servers: [
+        { id: "vidapi-primary", name: "VidApi · 1080p" },
+        { id: "vidapi-backup", name: "VidApi Backup · 1080p" },
+      ],
+    };
+  }
+
+  async getStream(
+    identifier: string,
+    episode: number = 1,
+    season: number = 1,
+    server?: string,
+  ): Promise<StreamSource | null> {
+    const data = await this.fetchApiData(identifier, season, episode);
+
     if (
-      data?.status_code !== "200" ||
+      String(data?.status_code) !== "200" ||
       !data?.data?.stream_urls ||
       data.data.stream_urls.length === 0
     ) {

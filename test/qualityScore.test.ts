@@ -11,7 +11,7 @@ import {
   SCORE_WEIGHT_720P,
   SCORE_WEIGHT_HLS,
   SCORE_WEIGHT_MP4,
-  SCORE_WEIGHT_PROVIDER_NOVA,
+  SCORE_WEIGHT_PROVIDER_VIDAPI,
 } from "../src/qualityScore.js";
 import type { AvailableService, StreamSource } from "../src/types.js";
 
@@ -60,12 +60,12 @@ describe("qualityScore", () => {
   });
 
   describe("getServiceScore", () => {
-    it("prioritizes NovaHD Falcon server over lower ranked providers", () => {
-      const novaFalcon: AvailableService = {
-        providerId: "nova",
-        providerName: "NovaHD",
-        serverName: "Falcon · 1080p",
-        serverId: "falcon",
+    it("prioritizes VidApi server over lower ranked providers", () => {
+      const vidApiService: AvailableService = {
+        providerId: "vidapi",
+        providerName: "VidApi",
+        serverName: "VidApi · 1080p",
+        serverId: "vidapi-primary",
         mediaType: "movie",
         identifier: "movie:872585",
         quality: "1080p",
@@ -81,11 +81,11 @@ describe("qualityScore", () => {
         quality: "720p",
       };
 
-      expect(getServiceScore(novaFalcon)).toBeGreaterThan(
+      expect(getServiceScore(vidApiService)).toBeGreaterThan(
         getServiceScore(genericService),
       );
-      expect(getServiceScore(novaFalcon)).toBeGreaterThanOrEqual(
-        SCORE_WEIGHT_PROVIDER_NOVA + SCORE_WEIGHT_1080P,
+      expect(getServiceScore(vidApiService)).toBeGreaterThanOrEqual(
+        SCORE_WEIGHT_PROVIDER_VIDAPI + SCORE_WEIGHT_1080P,
       );
     });
 
@@ -95,17 +95,17 @@ describe("qualityScore", () => {
       expect(getServiceScore({} as any)).toBe(0);
       expect(
         getServiceScore({
-          providerId: "nova",
+          providerId: "vidapi",
           providerName: undefined,
           serverId: undefined,
           serverName: undefined,
         } as any),
-      ).toBe(SCORE_WEIGHT_PROVIDER_NOVA);
+      ).toBe(SCORE_WEIGHT_PROVIDER_VIDAPI);
       expect(
         getServiceScore({
           providerId: undefined,
-          providerName: "NovaHD",
-          serverId: "falcon",
+          providerName: "VidApi",
+          serverId: "vidapi-primary",
         } as any),
       ).toBeGreaterThan(0);
     });

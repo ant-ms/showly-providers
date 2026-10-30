@@ -10,7 +10,6 @@ import type {
 import { getServiceScore, type QualityScoreOptions } from "./qualityScore.js";
 import { HiMoviesProvider } from "./providers/himovies.js";
 import { MoviesJoyProvider } from "./providers/moviesjoy.js";
-import { NovaProvider } from "./providers/nova.js";
 import { VidApiProvider } from "./providers/vidapi.js";
 import { VixSrcProvider } from "./providers/vixsrc.js";
 import { ZoechipProvider } from "./providers/zoechip.js";
@@ -46,7 +45,6 @@ export class ProviderRegistry {
       // Default high-reliability western providers in benchmarked priority order
       this.register(new VidApiProvider());
       this.register(new VixSrcProvider());
-      this.register(new NovaProvider());
       this.register(new MoviesJoyProvider());
       this.register(new ZoechipProvider());
       this.register(new HiMoviesProvider());
@@ -169,12 +167,12 @@ export class ProviderRegistry {
               const epData = await provider.getEpisodes(
                 matchedIdentifier,
                 targetSeason,
+                targetEpisode ?? 1,
               );
 
-              const hasTargetEpisode =
-                !isTv ||
-                !targetEpisode ||
-                epData.episodes.includes(targetEpisode);
+              const hasTargetEpisode = isTv
+                ? !targetEpisode || epData.episodes.includes(targetEpisode)
+                : epData.episodes.length > 0;
 
               if (hasTargetEpisode) {
                 const servers =

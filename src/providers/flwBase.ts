@@ -113,13 +113,36 @@ export abstract class FlwBaseProvider extends AbstractProvider {
     return results;
   }
 
+  protected prioritizeServers(
+    servers: Array<{ id: string; name: string }>,
+    preferredServer?: string,
+  ): Array<{ id: string; name: string }> {
+    const preferredLower = preferredServer?.toLowerCase();
+    const isPreferred = (s: { id: string; name: string }) =>
+      Boolean(
+        preferredLower &&
+        (s.name.toLowerCase().includes(preferredLower) ||
+          s.id === preferredServer),
+      );
+    const isVix = (s: { id: string; name: string }) => {
+      const lower = s.name.toLowerCase();
+      return lower.includes("vixcloud") || lower.includes("vixsrc");
+    };
+
+    const preferred = servers.filter((s) => isPreferred(s));
+    const vix = servers.filter((s) => !isPreferred(s) && isVix(s));
+    const rest = servers.filter((s) => !isPreferred(s) && !isVix(s));
+    return [...preferred, ...vix, ...rest];
+  }
+
   async getEpisodes(
     identifier: string,
     season: number = 1,
+    episode?: number,
   ): Promise<ProviderEpisodeList> {
     const slugId = this.extractSlugId(identifier);
     const isTv = identifier.includes("tv/") || identifier.startsWith("tv-");
-    const cacheKey = `${identifier}:${season}`;
+    const cacheKey = `${identifier}:${season}:${episode ?? 1}`;
 
     const cached = this.episodeCache.get(cacheKey);
     if (cached) return cached;
@@ -187,8 +210,9 @@ export abstract class FlwBaseProvider extends AbstractProvider {
         if (id) episodesList.push({ id, num });
       });
 
-      // 3. Fetch servers for first episode
-      const targetEpisode = episodesList[0];
+      // 3. Fetch servers for target episode
+      const targetEpisode =
+        episodesList.find((e) => e.num === (episode ?? 1)) || episodesList[0];
       const servers: Array<{ id: string; name: string }> = [];
 
       if (targetEpisode) {
@@ -216,7 +240,7 @@ export abstract class FlwBaseProvider extends AbstractProvider {
       const result: ProviderEpisodeList = {
         episodes: episodesList.map((e) => e.num),
         seasons: seasonsList.map((s) => s.num),
-        servers,
+        servers: this.prioritizeServers(servers),
       };
 
       this.episodeCache.set(cacheKey, result);
@@ -245,12 +269,88 @@ export abstract class FlwBaseProvider extends AbstractProvider {
 
       const result: ProviderEpisodeList = {
         episodes: [1],
-        servers,
+        servers: this.prioritizeServers(servers),
       };
 
       this.episodeCache.set(cacheKey, result);
       return result;
     }
+  }
+
+  protected async resolveServerSource(
+    serverId: string,
+    resolvedServerName: string,
+    identifier: string,
+  ): Promise<StreamSource | null> {
+    const sourceData = await this.fetchJson<FlwSourceResponse>(
+      `${this.baseUrl}/ajax/episode/sources/${serverId}`,
+      {
+        headers: getDefaultHeaders({
+          Referer: `${this.baseUrl}/${identifier}`,
+          "X-Requested-With": "XMLHttpRequest",
+        }),
+      },
+    );
+
+    const directSource = sourceData?.sources?.[0]?.file;
+    if (directSource) {
+      const isHls = directSource.includes(".m3u8");
+      const subtitles = parseSubtitles(sourceData?.tracks);
+      return {
+        url: directSource,
+        container: isHls ? "hls" : "mp4",
+        quality: "1080p",
+        resolution: 1080,
+        serverName: resolvedServerName,
+        headers: {
+          ...getDefaultHeaders(),
+          Referer: `${this.baseUrl}/`,
+        },
+        subtitles,
+      };
+    }
+
+    const link = sourceData?.link;
+    if (!link) return null;
+
+    if (link.includes("vixsrc.to")) {
+      const vixStream = await resolveVixSrcStream(
+        link,
+        this.fetchFn,
+        this.timeoutMs,
+      );
+      if (vixStream) {
+        return {
+          ...vixStream,
+          serverName: resolvedServerName,
+        };
+      }
+    }
+
+    if (
+      sourceData?.type === "iframe" ||
+      (!link.includes(".m3u8") &&
+        !link.includes(".mp4") &&
+        !link.includes(".mkv"))
+    ) {
+      return null;
+    }
+
+    const isHls = link.includes(".m3u8");
+    const subtitles = parseSubtitles(sourceData?.tracks);
+
+    return {
+      url: link,
+      container: isHls ? "hls" : "mp4",
+      quality: "1080p",
+      resolution: 1080,
+      serverName: resolvedServerName,
+      headers: {
+        ...getDefaultHeaders(),
+        Referer: `${this.baseUrl}/`,
+      },
+      subtitles,
+    };
   }
 
   async getStream(
@@ -262,8 +362,7 @@ export abstract class FlwBaseProvider extends AbstractProvider {
     const slugId = this.extractSlugId(identifier);
     const isTv = identifier.includes("tv/") || identifier.startsWith("tv-");
 
-    let serverId: string | null = null;
-    let resolvedServerName = server || "Default";
+    const rawServers: Array<{ id: string; name: string }> = [];
 
     if (isTv) {
       // Fetch season list
@@ -336,25 +435,12 @@ export abstract class FlwBaseProvider extends AbstractProvider {
       if (!serversHtml) return null;
       const $srv = cheerio.load(serversHtml);
 
-      if (server) {
-        $srv(".link-item").each((_, el) => {
-          const id = $srv(el).attr("data-id") || "";
-          const name = $srv(el).text().trim() || $srv(el).attr("title") || "";
-          if (
-            name.toLowerCase().includes(server.toLowerCase()) ||
-            id === server
-          ) {
-            serverId = id;
-            resolvedServerName = name;
-          }
-        });
-      }
-
-      if (!serverId) {
-        const first = $srv(".link-item").first();
-        serverId = first.attr("data-id") || null;
-        resolvedServerName = first.text().trim() || "Server";
-      }
+      $srv(".link-item").each((_, el) => {
+        const id = $srv(el).attr("data-id") || "";
+        const name =
+          $srv(el).text().trim() || $srv(el).attr("title") || "Server";
+        if (id) rawServers.push({ id, name });
+      });
     } else {
       // Movie
       const serversHtml = await this.fetchText(
@@ -370,99 +456,25 @@ export abstract class FlwBaseProvider extends AbstractProvider {
       if (!serversHtml) return null;
       const $ = cheerio.load(serversHtml);
 
-      if (server) {
-        $(".link-item").each((_, el) => {
-          const id = $(el).attr("data-id") || "";
-          const name = $(el).text().trim() || $(el).attr("title") || "";
-          if (
-            name.toLowerCase().includes(server.toLowerCase()) ||
-            id === server
-          ) {
-            serverId = id;
-            resolvedServerName = name;
-          }
-        });
-      }
-
-      if (!serverId) {
-        const first = $(".link-item").first();
-        serverId = first.attr("data-id") || null;
-        resolvedServerName = first.text().trim() || "Server";
-      }
+      $(".link-item").each((_, el) => {
+        const id = $(el).attr("data-id") || "";
+        const name = $(el).text().trim() || $(el).attr("title") || "Server";
+        if (id) rawServers.push({ id, name });
+      });
     }
 
-    if (!serverId) return null;
+    if (rawServers.length === 0) return null;
 
-    const sourceData = await this.fetchJson<FlwSourceResponse>(
-      `${this.baseUrl}/ajax/episode/sources/${serverId}`,
-      {
-        headers: getDefaultHeaders({
-          Referer: `${this.baseUrl}/${identifier}`,
-          "X-Requested-With": "XMLHttpRequest",
-        }),
-      },
-    );
-
-    const directSource = sourceData?.sources?.[0]?.file;
-    if (directSource) {
-      const isHls = directSource.includes(".m3u8");
-      const subtitles = parseSubtitles(sourceData?.tracks);
-      return {
-        url: directSource,
-        container: isHls ? "hls" : "mp4",
-        quality: "1080p",
-        resolution: 1080,
-        serverName: resolvedServerName,
-        headers: {
-          ...getDefaultHeaders(),
-          Referer: `${this.baseUrl}/`,
-        },
-        subtitles,
-      };
-    }
-
-    const link = sourceData?.link;
-    if (!link) return null;
-
-    if (link.includes("vixsrc.to")) {
-      const vixStream = await resolveVixSrcStream(
-        link,
-        this.fetchFn,
-        this.timeoutMs,
+    const candidates = this.prioritizeServers(rawServers, server);
+    for (const candidate of candidates) {
+      const stream = await this.resolveServerSource(
+        candidate.id,
+        candidate.name,
+        identifier,
       );
-      if (vixStream) {
-        return {
-          ...vixStream,
-          serverName: resolvedServerName,
-        };
-      }
+      if (stream) return stream;
     }
 
-    // If sourceData is an embed player / iframe (e.g. vidfast.vc, moviesapi.to, vixsrc),
-    // it cannot be played in a native video element. Return null so failover occurs.
-    if (
-      sourceData?.type === "iframe" ||
-      (!link.includes(".m3u8") &&
-        !link.includes(".mp4") &&
-        !link.includes(".mkv"))
-    ) {
-      return null;
-    }
-
-    const isHls = link.includes(".m3u8");
-    const subtitles = parseSubtitles(sourceData?.tracks);
-
-    return {
-      url: link,
-      container: isHls ? "hls" : "mp4",
-      quality: "1080p",
-      resolution: 1080,
-      serverName: resolvedServerName,
-      headers: {
-        ...getDefaultHeaders(),
-        Referer: `${this.baseUrl}/`,
-      },
-      subtitles,
-    };
+    return null;
   }
 }

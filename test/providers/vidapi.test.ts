@@ -130,5 +130,9 @@ describe("VidApiProvider", () => {
     const provider = new VidApiProvider({ fetchFn: mockFetch });
     const stream = await provider.getStream("movie:99999999");
     expect(stream).toBeNull();
+
+    const epData = await provider.getEpisodes("tv:2190", 29, 4);
+    expect(epData.episodes).toEqual([]);
+    expect(epData.servers).toEqual([]);
   });
 });

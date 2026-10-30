@@ -6,8 +6,8 @@ import type { AvailableService, StreamSource } from "./types.js";
  * Benchmark & scoring weights:
  * - Resolution: 4K (+16), 1080p (+10), 720p (+5), 480p (+2).
  * - Container: HLS (+8, adaptive bitrate streaming), MP4 (+4).
- * - Provider reliability: NovaHD (+12), MoviesJoy (+8), Zoechip (+8), HiMovies (+6).
- * - Preferred CDN servers: Falcon (+6), MegaCloud (+5), UpCloud (+5), VidFast (+4), VixCloud (+3).
+ * - Provider reliability: VidApi (+14), VixSrc (+13), MoviesJoy (+8), Zoechip (+8), HiMovies (+6).
+ * - Preferred CDN servers: VidApi (+7), VixCloud (+6), MegaCloud (+5), UpCloud (+5), VidFast (+4).
  * - Latency: <100ms (+6), <300ms (+4), <800ms (+2), >2000ms (-4).
  */
 export const SCORE_WEIGHT_4K = 16;
@@ -20,7 +20,6 @@ export const SCORE_WEIGHT_MP4 = 4;
 
 export const SCORE_WEIGHT_PROVIDER_VIDAPI = 14;
 export const SCORE_WEIGHT_PROVIDER_VIXSRC = 13;
-export const SCORE_WEIGHT_PROVIDER_NOVA = 12;
 export const SCORE_WEIGHT_PROVIDER_MOVIESJOY = 8;
 export const SCORE_WEIGHT_PROVIDER_ZOECHIP = 8;
 export const SCORE_WEIGHT_PROVIDER_HIMOVIES = 6;
@@ -28,8 +27,6 @@ export const SCORE_WEIGHT_PROVIDER_HIMOVIES = 6;
 export const DEFAULT_PROVIDER_WEIGHTS: Record<string, number> = {
   vidapi: SCORE_WEIGHT_PROVIDER_VIDAPI,
   vixsrc: SCORE_WEIGHT_PROVIDER_VIXSRC,
-  novahd: SCORE_WEIGHT_PROVIDER_NOVA,
-  nova: SCORE_WEIGHT_PROVIDER_NOVA,
   moviesjoy: SCORE_WEIGHT_PROVIDER_MOVIESJOY,
   zoechip: SCORE_WEIGHT_PROVIDER_ZOECHIP,
   himovies: SCORE_WEIGHT_PROVIDER_HIMOVIES,
@@ -46,7 +43,7 @@ export const DEFAULT_SERVER_RULES: ServerScoringRule[] = [
     weight: 7,
   },
   {
-    match: (name, id) => name.includes("falcon") || id === "falcon",
+    match: (name, id) => name.includes("vixcloud") || id.includes("vixsrc"),
     weight: 6,
   },
   {
@@ -63,10 +60,6 @@ export const DEFAULT_SERVER_RULES: ServerScoringRule[] = [
   {
     match: (name, id) => name.includes("vidfast") || id.includes("vidfast"),
     weight: 4,
-  },
-  {
-    match: (name, id) => name.includes("vixcloud") || id.includes("vixsrc"),
-    weight: 3,
   },
 ];
 

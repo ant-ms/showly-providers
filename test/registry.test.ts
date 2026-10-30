@@ -64,23 +64,23 @@ describe("ProviderRegistry", () => {
   });
 
   it("checks availability and scores services", async () => {
-    const novaMock = createMockProvider("nova", "NovaHD", [
-      { id: "falcon", name: "Falcon · 1080p" },
+    const vidapiMock = createMockProvider("vidapi", "VidApi", [
+      { id: "vidapi-primary", name: "VidApi · 1080p" },
     ]);
     const himoviesMock = createMockProvider("himovies", "HiMovies", [
       { id: "upcloud", name: "UpCloud" },
     ]);
 
     const registry = new ProviderRegistry({
-      providers: [himoviesMock, novaMock],
+      providers: [himoviesMock, vidapiMock],
     });
 
     const services = await registry.checkAvailability("Oppenheimer", 2023);
     expect(services.length).toBeGreaterThanOrEqual(2);
 
-    // NovaHD should rank higher due to provider weight & Falcon server bonus
-    expect(services[0].providerId).toBe("nova");
-    expect(services[0].serverName).toBe("Falcon · 1080p");
+    // VidApi should rank higher due to provider weight & server bonus
+    expect(services[0].providerId).toBe("vidapi");
+    expect(services[0].serverName).toBe("VidApi · 1080p");
   });
 
   it("resolves stream from chosen provider", async () => {
